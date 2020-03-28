@@ -4,7 +4,15 @@ You can edit this file as you like.
 -}
 { name = "my-project"
 , dependencies =
-  [ "concur-core", "concur-react", "console", "effect", "psci-support" ]
+  [ "concur-core"
+  , "concur-react"
+  , "console"
+  , "effect"
+  , "integers"
+  , "psci-support"
+  , "strings-extra"
+  , "tuples"
+  ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }

@@ -56,7 +56,7 @@ module Internal.Flag
     , yAlign
     ) where
 
-import Data.Eq ((==))
+import Data.Eq (class Eq, (==))
 import Data.Field ((+), (/))
 import Data.Int (round, toNumber)
 import Data.Int.Bits as Bitwise
@@ -73,6 +73,7 @@ data Flag
     = Flag Int
     | Second Int
 
+derive instance eqFlag :: Eq Flag
 
 none :: Field
 none =
