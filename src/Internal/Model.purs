@@ -39,6 +39,7 @@ module Internal.Model
     , addWhen
     , alignXName
     , alignYName
+    , arrayFoldl
     , asColumn
     , asEl
     , asGrid
@@ -74,6 +75,7 @@ module Internal.Model
     , gridClass
     , htmlClass
     , isContent
+    , isElementEmpty
     , lengthClassName
     -- AJ: Replaced with Functor instances
     -- , mapElem
@@ -104,7 +106,7 @@ module Internal.Model
     , toStyleSheet
     , transformClass
     , unstyled
-    -- , unwrapDecorations
+    , unwrapDecorations
     , variantName
     ) where
 
@@ -149,13 +151,9 @@ import Internal.Flag as Flag
 import Internal.Style (classes, dot, rules) as IStyle
 import React.DOM (IsDynamic(..), mkDOM)
 import Unsafe.Coerce (unsafeCoerce)
+import Util (zeroDiv)
 
 -- import Json.Encode as Encode
-
--- AJ
--- Division, but when the denominator is zero, returns zero
-zeroDiv :: Int -> Int -> Int
-zeroDiv n d = if d == 0 then 0 else n / d
 
 -- AJ
 words :: String -> Array String
@@ -169,6 +167,10 @@ data Element msg
         }
     | Text String
     | Empty
+
+isElementEmpty :: forall msg. Element msg -> Boolean
+isElementEmpty Empty = true
+isElementEmpty _ = false
 
 
 data EmbedStyle
@@ -2268,10 +2270,9 @@ mapXYVal fn {xval, yval} = {xval: fn xval, yval: fn yval}
 
 type Shadow =
     { color :: Color
-    , offset :: XYVal Number
-    -- Int or Number???
-    , blur :: Number
-    , size :: Number
+    , offset :: XYVal Int
+    , blur :: Int
+    , size :: Int
     }
 
 rootStyle :: forall msg aligned. Array (Attribute aligned msg)
@@ -2361,9 +2362,9 @@ focusDefaultStyle =
         Just
             { color:
                 Rgba (155.0 / 255.0) (203.0 / 255.0) 1.0 1.0
-            , offset: {xval: 0.0, yval: 0.0}
-            , blur: 0.0
-            , size: 3.0
+            , offset: {xval: 0, yval: 0}
+            , blur: 0
+            , size: 3
             }
     }
 
@@ -3259,9 +3260,9 @@ textShadowClass :: Shadow -> String
 textShadowClass shadow =
     String.joinWith ""
         [ "txt"
-        , floatClass shadow.offset.xval <> "px"
-        , floatClass shadow.offset.yval <> "px"
-        , floatClass shadow.blur <> "px"
+        , intClass shadow.offset.xval <> "px"
+        , intClass shadow.offset.yval <> "px"
+        , intClass shadow.blur <> "px"
         , formatColorClass shadow.color
         ]
 
@@ -3289,13 +3290,18 @@ boxShadowClass inset shadow =
 
           else
             "box-"
-        , floatClass shadow.offset.xval <> "px"
-        , floatClass shadow.offset.yval <> "px"
-        , floatClass shadow.blur <> "px"
-        , floatClass shadow.size <> "px"
+        , intClass shadow.offset.xval <> "px"
+        , intClass shadow.offset.yval <> "px"
+        , intClass shadow.blur <> "px"
+        , intClass shadow.size <> "px"
         , formatColorClass shadow.color
         ]
 
+-- AJ
+-- AJ: The elm code is a mess thanks to lack of types
+intClass :: Int -> String
+intClass x =
+    show (x * 255)
 
 floatClass :: Number -> String
 floatClass x =
