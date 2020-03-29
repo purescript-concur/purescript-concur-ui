@@ -117,6 +117,7 @@ module Internal.Model
 -- import Html.Keyed
 -- import VirtualDom
 
+import Concur.Core.LiftWidget (class LiftWidget)
 import Concur.Core.Types (Widget)
 import Concur.React (HTML)
 import Concur.React.DOM as D
@@ -149,6 +150,7 @@ import Data.Void (Void, absurd)
 import Internal.Flag (Flag)
 import Internal.Flag as Flag
 import Internal.Style (classes, dot, rules) as IStyle
+import React (ReactElement)
 import React.DOM (IsDynamic(..), mkDOM)
 import Unsafe.Coerce (unsafeCoerce)
 import Util (zeroDiv)
@@ -168,10 +170,14 @@ data Element msg
     | Text String
     | Empty
 
+-- AJ
 isElementEmpty :: forall msg. Element msg -> Boolean
 isElementEmpty Empty = true
 isElementEmpty _ = false
 
+-- AJ
+instance liftWidgetElement :: LiftWidget (Array ReactElement) Element where
+  liftWidget w = Unstyled $ const w
 
 data EmbedStyle
     = NoStyleSheet
