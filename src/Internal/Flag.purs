@@ -1,6 +1,6 @@
 module Internal.Flag
-    ( Field(..)
-    , Flag(..)
+    ( Field --(..)
+    , Flag --(..)
     , active
     , add
     , alignBottom
@@ -16,7 +16,7 @@ module Internal.Flag
     , centerX
     , centerY
     , cursor
-    , flag
+    -- , flag
     , focus
     , fontAlignment
     , fontColor
@@ -46,7 +46,7 @@ module Internal.Flag
     , spacing
     , transparency
     , txtShadows
-    , value
+    -- , value
     , width
     , widthBetween
     , widthContent
@@ -56,64 +56,26 @@ module Internal.Flag
     , yAlign
     ) where
 
-import Data.Eq (class Eq, (==))
-import Data.Field ((+), (/))
-import Data.Int (round, toNumber)
-import Data.Int.Bits as Bitwise
-import Data.Ord ((>))
-import Data.Ring ((-))
-import Math (ln2, log)
+import Data.Eq (class Eq)
+import Data.Ord (class Ord)
+import Data.Set (Set)
+import Data.Set as Set
 
-
-data Field
-    = Field Int Int
-
-
-data Flag
-    = Flag Int
-    | Second Int
-
-derive instance eqFlag :: Eq Flag
+newtype Field = Field (Set Flag)
 
 none :: Field
-none =
-    Field 0 0
-
-log2 :: Number -> Number
-log2 x = log x / ln2
-
-value :: Flag -> Int
-value myFlag =
-    case myFlag of
-        Flag first ->
-            round (log2 (toNumber first))
-
-        Second second ->
-            round (log2 (toNumber second)) + 32
-
+none = Field Set.empty
 
 {-| If the query is in the truth, return True
 -}
 present :: Flag -> Field -> Boolean
-present myFlag (Field fieldOne fieldTwo) =
-    case myFlag of
-        Flag first ->
-            Bitwise.and first fieldOne == first
-
-        Second second ->
-            Bitwise.and second fieldTwo == second
-
+present myFlag (Field set) = Set.member myFlag set
 
 {-| Add a flag to a field.
 -}
 add :: Flag -> Field -> Field
-add myFlag (Field one two) =
-    case myFlag of
-        Flag first ->
-            Field (Bitwise.or first one) two
-
-        Second second ->
-            Field one (Bitwise.or second two)
+add myFlag (Field set) =
+    Field (Set.insert myFlag set)
 
 
 {-| Generally you want to use `add`, which keeps a distinction between Fields and Flags.
@@ -122,193 +84,233 @@ Merging will combine two fields
 
 -}
 merge :: Field -> Field -> Field
-merge (Field one two) (Field three four) =
-    Field (Bitwise.or one three) (Bitwise.or two four)
-
-
-flag :: Int -> Flag
-flag i =
-    if i > 31 then
-        Second
-            (Bitwise.shl (i - 32) 1)
-
-    else
-        Flag
-            (Bitwise.shl i 1)
+merge (Field s1) (Field s2) =
+    Field (Set.union s1 s2)
 
 
 
 {- Used for Style invalidation -}
 
+data Flag
+  = Transparency
+  | Padding
+  | Spacing
+  | FontSize
+  | FontFamily
+  | Width
+  | Height
+  | BgColor
+  | BgImage
+  | BgGradient
+  | BorderStyle
+  | FontAlignment
+  | FontWeight
+  | FontColor
+  | WordSpacing
+  | LetterSpacing
+  | BorderRound
+  | TxtShadows
+  | Shadows
+  | Overflow
+  | Cursor
+  | Scale
+  | Rotate
+  | MoveX
+  | MoveY
+  | BorderWidth
+  | BorderColor
+  | YAlign
+  | XAlign
+  | Focus
+  | Active
+  | Hover
+  | GridTemplate
+  | GridPosition
+  | HeightContent
+  | HeightFill
+  | WidthContent
+  | WidthFill
+  | AlignRight
+  | AlignBottom
+  | CenterX
+  | CenterY
+  | WidthBetween
+  | HeightBetween
+  | Behind
+  | HeightTextAreaContent
+  | FontVariant
+
+derive instance eqFlag :: Eq Flag
+derive instance ordFlag :: Ord Flag
 
 transparency :: Flag
 transparency =
-    flag 0
+  Transparency
 
 
 padding :: Flag
 padding =
-    flag 2
+  Padding
 
 
 spacing :: Flag
 spacing =
-    flag 3
+  Spacing
 
 
 fontSize :: Flag
 fontSize =
-    flag 4
+  FontSize
 
 
 fontFamily :: Flag
 fontFamily =
-    flag 5
+  FontFamily
 
 
 width :: Flag
 width =
-    flag 6
+  Width
 
 
 height :: Flag
 height =
-    flag 7
+  Height
 
 
 bgColor :: Flag
 bgColor =
-    flag 8
+  BgColor
 
 
 bgImage :: Flag
 bgImage =
-    flag 9
+  BgImage
 
 
 bgGradient :: Flag
 bgGradient =
-    flag 10
+  BgGradient
 
 
 borderStyle :: Flag
 borderStyle =
-    flag 11
+  BorderStyle
 
 
 fontAlignment :: Flag
 fontAlignment =
-    flag 12
+  FontAlignment
 
 
 fontWeight :: Flag
 fontWeight =
-    flag 13
+  FontWeight
 
 
 fontColor :: Flag
 fontColor =
-    flag 14
+  FontColor
 
 
 wordSpacing :: Flag
 wordSpacing =
-    flag 15
+  WordSpacing
 
 
 letterSpacing :: Flag
 letterSpacing =
-    flag 16
+  LetterSpacing
 
 
 borderRound :: Flag
 borderRound =
-    flag 17
+  BorderRound
 
 
 txtShadows :: Flag
 txtShadows =
-    flag 18
+  TxtShadows
 
 
 shadows :: Flag
 shadows =
-    flag 19
+  Shadows
 
 
 overflow :: Flag
 overflow =
-    flag 20
+  Overflow
 
 
 cursor :: Flag
 cursor =
-    flag 21
+  Cursor
 
 
 scale :: Flag
 scale =
-    flag 23
+  Scale
 
 
 rotate :: Flag
 rotate =
-    flag 24
+  Rotate
 
 
 moveX :: Flag
 moveX =
-    flag 25
+  MoveX
 
 
 moveY :: Flag
 moveY =
-    flag 26
+  MoveY
 
 
 borderWidth :: Flag
 borderWidth =
-    flag 27
+  BorderWidth
 
 
 borderColor :: Flag
 borderColor =
-    flag 28
+  BorderColor
 
 
 yAlign :: Flag
 yAlign =
-    flag 29
+  YAlign
 
 
 xAlign :: Flag
 xAlign =
-    flag 30
+  XAlign
 
 
 focus :: Flag
 focus =
-    flag 31
+  Focus
 
 
 active :: Flag
 active =
-    flag 32
+  Active
 
 
 hover :: Flag
 hover =
-    flag 33
+  Hover
 
 
 gridTemplate :: Flag
 gridTemplate =
-    flag 34
+  GridTemplate
 
 
 gridPosition :: Flag
 gridPosition =
-    flag 35
+  GridPosition
 
 
 
@@ -317,64 +319,64 @@ gridPosition =
 
 heightContent :: Flag
 heightContent =
-    flag 36
+  HeightContent
 
 
 heightFill :: Flag
 heightFill =
-    flag 37
+  HeightFill
 
 
 widthContent :: Flag
 widthContent =
-    flag 38
+  WidthContent
 
 
 widthFill :: Flag
 widthFill =
-    flag 39
+  WidthFill
 
 
 alignRight :: Flag
 alignRight =
-    flag 40
+  AlignRight
 
 
 alignBottom :: Flag
 alignBottom =
-    flag 41
+  AlignBottom
 
 
 centerX :: Flag
 centerX =
-    flag 42
+  CenterX
 
 
 centerY :: Flag
 centerY =
-    flag 43
+  CenterY
 
 
 widthBetween :: Flag
 widthBetween =
-    flag 44
+  WidthBetween
 
 
 heightBetween :: Flag
 heightBetween =
-    flag 45
+  HeightBetween
 
 
 behind :: Flag
 behind =
-    flag 46
+  Behind
 
 
 heightTextAreaContent :: Flag
 heightTextAreaContent =
-    flag 47
+  HeightTextAreaContent
 
 
 fontVariant :: Flag
 fontVariant =
-    flag 48
+  FontVariant
