@@ -2276,9 +2276,9 @@ mapXYVal fn {xval, yval} = {xval: fn xval, yval: fn yval}
 
 type Shadow =
     { color :: Color
-    , offset :: XYVal Int
-    , blur :: Int
-    , size :: Int
+    , offset :: XYVal Number
+    , blur :: Number
+    , size :: Number
     }
 
 rootStyle :: forall msg aligned. Array (Attribute aligned msg)
@@ -2368,9 +2368,9 @@ focusDefaultStyle =
         Just
             { color:
                 Rgba (155.0 / 255.0) (203.0 / 255.0) 1.0 1.0
-            , offset: {xval: 0, yval: 0}
-            , blur: 0
-            , size: 3
+            , offset: {xval: 0.0, yval: 0.0}
+            , blur: 0.0
+            , size: 3.0
             }
     }
 
@@ -3266,9 +3266,9 @@ textShadowClass :: Shadow -> String
 textShadowClass shadow =
     String.joinWith ""
         [ "txt"
-        , intClass shadow.offset.xval <> "px"
-        , intClass shadow.offset.yval <> "px"
-        , intClass shadow.blur <> "px"
+        , floatClass shadow.offset.xval <> "px"
+        , floatClass shadow.offset.yval <> "px"
+        , floatClass shadow.blur <> "px"
         , formatColorClass shadow.color
         ]
 
@@ -3296,10 +3296,10 @@ boxShadowClass inset shadow =
 
           else
             "box-"
-        , intClass shadow.offset.xval <> "px"
-        , intClass shadow.offset.yval <> "px"
-        , intClass shadow.blur <> "px"
-        , intClass shadow.size <> "px"
+        , floatClass shadow.offset.xval <> "px"
+        , floatClass shadow.offset.yval <> "px"
+        , floatClass shadow.blur <> "px"
+        , floatClass shadow.size <> "px"
         , formatColorClass shadow.color
         ]
 
