@@ -3,59 +3,138 @@ module Main where
 import Prelude
 
 import Concur.Core (Widget)
-import Concur.Core.LiftWidget (liftWidget)
 import Concur.React (HTML)
-import Concur.React.DOM as D
-import Concur.React.Props as P
 import Concur.React.Run (runWidgetInDom)
-import Data.Either (Either(..))
-import Data.Int as I
-import Data.Maybe (Maybe(..))
 import Effect (Effect)
+import Element (Element)
 import Element as E
-import Element as Element
+import Element.Background as Background
 
-drawUI :: forall a. Int -> Int -> Widget HTML a
-drawUI padding spacing = do
-  res <- center padding spacing $ D.div'
-    [ sampleWidget
-    , D.div'
-        [ Left <$> mySlider padding
-        , Right <$> mySlider spacing
-        ]
-    ]
-  case res of
-    Left (Just padding') -> drawUI padding' spacing
-    Right (Just spacing') -> drawUI padding spacing'
-    _ -> drawUI padding spacing
-  where
-    mySlider = slider 0 100 1
-
--- My sample widget
-sampleWidget :: forall a. Widget HTML a
-sampleWidget = do
-  void $ D.button [P.onClick] [D.text "Say Hello"]
-  D.text "Hello Sailor!"
-
--- HTML5 Slider
-slider :: Int -> Int -> Int -> Int -> Widget HTML (Maybe Int)
-slider min max steps val = do
-  D.input
-    [ P._type "range"
-    , P.defaultValue (show val)
-    , P.min (show min)
-    , P.max (show max)
-    , I.fromString <<< P.unsafeTargetValue <$> P.onInput
-    , P.unsafeMkProp "step" steps
-    ]
 
 main :: Effect Unit
-main = runWidgetInDom "root" (drawUI 20 20)
+main = runWidgetInDom "root" view
 
--- Elm-UI layout!
+edges :: { bottom :: Int
+, left :: Int
+, right :: Int
+, top :: Int
+}
+edges =
+    { top: 0
+    , right: 0
+    , bottom: 0
+    , left: 0
+    }
 
--- Center a widget with a custom padding and spacing
-center :: forall a. Int -> Int -> Widget HTML a -> Widget HTML a
-center padding spacing w =
-  Element.layout [] $
-    E.el [ E.centerX, E.centerY, E.padding padding, E.spacing spacing ] (liftWidget w)
+
+view :: forall a. Widget HTML a
+view =
+  E.layout [ E.inFront header ] $
+    E.column [ E.width E.fill ]
+      [ header
+      , hero
+      , content
+      , footer
+      ]
+
+
+header :: forall a. Element a
+header =
+    E.row [ E.width E.fill, Background.color (E.rgb 0.0 0.5 0.0), E.spacing 20, E.padding 30 ]
+        [ E.el [] (E.text "logo")
+        , E.el [ E.alignRight ] (E.text "Home")
+        , E.el [] (E.text "About Us")
+        , E.el [] (E.text "Services")
+        , E.el [] (E.text "Contact Us")
+        ]
+
+
+hero :: forall a. Element a
+hero =
+    E.row [ E.width E.fill, Background.color (E.rgb 0.0 0.7 0.0) ]
+        [ E.image [ E.width E.fill ]
+            { src: "https://via.placeholder.com/1400x400"
+            , description: "Hero Image"
+            }
+        ]
+
+
+content :: forall a.Element a
+content =
+    E.column
+        [ E.width
+            (E.fill
+                # E.maximum 750
+                # E.minimum 250
+            )
+        , Background.color (E.rgb 0.0 0.9 0.0)
+        , E.centerX
+        , E.spacing 10
+        , E.padding 10
+        ]
+        [ E.textColumn []
+            [ E.image [ E.alignRight ]
+                { src: "https://via.placeholder.com/250"
+                , description: "Hero Image"
+                }
+            , home
+            ]
+        , E.textColumn []
+            [ E.image [ E.paddingEach edges{ right = 10 }, E.alignLeft ]
+                { src: "https://via.placeholder.com/250"
+                , description: "Hero Image"
+                }
+            , about
+            ]
+        , E.textColumn []
+            [ E.image [ E.alignRight ]
+                { src: "https://via.placeholder.com/250"
+                , description: "Hero Image"
+                }
+            , services
+            ]
+        , E.textColumn []
+            [ E.image [ E.paddingEach edges{ right = 10 }, E.alignLeft ]
+                { src: "https://via.placeholder.com/250"
+                , description: "Hero Image"
+                }
+            , contactUs
+            ]
+        ]
+
+
+home :: forall a. Element a
+home =
+    E.paragraph []
+        [ E.text
+            "Home lots of text ...."
+        ]
+
+
+about :: forall a. Element a
+about =
+    E.paragraph []
+        [ E.text
+            "About lots of text ...."
+        ]
+
+
+services :: forall a. Element a
+services =
+    E.paragraph []
+        [ E.text
+            "lots of text ...."
+        ]
+
+
+contactUs :: forall a. Element a
+contactUs =
+    E.paragraph []
+        [ E.text
+            "lots of text ...."
+        ]
+
+
+footer :: forall a. Element a
+footer =
+    E.row [ E.height (E.px 200), E.width E.fill, Background.color (E.rgb 0.0 0.3 0.0) ] []
