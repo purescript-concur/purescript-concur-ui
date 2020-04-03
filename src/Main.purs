@@ -14,11 +14,14 @@ import Element.Background as Background
 main :: Effect Unit
 main = runWidgetInDom "root" view
 
-edges :: { bottom :: Int
-, left :: Int
-, right :: Int
-, top :: Int
-}
+type Layout =
+  { bottom :: Int
+  , left :: Int
+  , right :: Int
+  , top :: Int
+  }
+
+edges :: Layout
 edges =
     { top: 0
     , right: 0
@@ -36,7 +39,6 @@ view =
       , content
       , footer
       ]
-
 
 header :: forall a. Element a
 header =

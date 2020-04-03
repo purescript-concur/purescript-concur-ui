@@ -137,7 +137,7 @@ import Data.Int (round, toNumber)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Ord (max, min, (<), (<=), (>=))
 import Data.Ring ((*))
-import Data.Semigroup ((<>))
+import Data.Semigroup (append, (<>))
 import Data.Set (Set)
 import Data.Set as Set
 import Data.Show (show)
@@ -367,6 +367,8 @@ type Angle =
 data Attribute aligned msg
     = NoAttribute
     | Attr (P.ReactProps msg)
+    -- AJ: These classes are concatenated in the final output
+    | HtmlClassName (Array String)
     | Describe Description
       -- invalidation key and literal class
     | Class Flag String
@@ -461,7 +463,7 @@ type Gathered msg =
 
 
 htmlClass :: forall aligned msg. String -> Attribute aligned msg
-htmlClass cls = Attr $ P.className cls
+htmlClass cls = HtmlClassName [cls]
 
 
 {-| -}
@@ -1021,6 +1023,9 @@ gatherAttrRecursive classes node has transform styles attrs children elementAttr
             case attribute of
                 NoAttribute ->
                     gatherAttrRecursive classes node has transform styles attrs children remaining
+
+                HtmlClassName cs ->
+                    gatherAttrRecursive (classes <> " " <> String.joinWith " " cs) node has transform styles attrs children remaining
 
                 Class flag exactClassName ->
                     if Flag.present flag has then
@@ -1961,69 +1966,75 @@ This doesn't reduce equivalent attributes completely.
 -}
 filter :: forall aligned msg. Array (Attribute aligned msg) -> Array (Attribute aligned msg)
 filter attrs =
-    Tuple.fst $
+    let
+      modifiedAttrs =
         foldr
-            (\x (Tuple found has ) ->
+            (\x curr ->
                 case x of
                     NoAttribute ->
-                        (Tuple found has )
+                        curr
 
                     Class key _ ->
-                        (Tuple (x : found) has )
+                        curr {found = x:curr.found}
+
+                    HtmlClassName cs ->
+                        curr {found = x:curr.found, htmlClasses = append curr.htmlClasses cs}
 
                     Attr attr ->
-                        (Tuple (x : found) has )
+                        curr {found = x:curr.found}
 
                     StyleClass _ style ->
-                        (Tuple (x : found) has )
+                        curr {found = x:curr.found}
 
                     Width width ->
-                        if Set.member "width" has then
-                            Tuple found has
+                        if Set.member "width" curr.has then
+                            curr
 
                         else
-                            Tuple (x : found) (Set.insert "width" has )
+                           curr {found = x:curr.found, has = Set.insert "width" curr.has }
 
                     Height height ->
-                        if Set.member "height" has then
-                            (Tuple found has )
+                        if Set.member "height" curr.has then
+                            curr
 
                         else
-                            (Tuple (x : found) (Set.insert "height" has ))
+                            curr {found = x:curr.found, has = Set.insert "height" curr.has}
 
                     Describe description ->
-                        if Set.member "described" has then
-                            (Tuple found has )
+                        if Set.member "described" curr.has then
+                            curr
 
                         else
-                            (Tuple (x : found) (Set.insert "described" has ))
+                            curr {found = x:curr.found, has = Set.insert "described" curr.has}
 
                     Nearby location elem ->
-                        (Tuple (x : found) (has ))
+                        curr {found = x:curr.found}
 
                     AlignX _ ->
-                        if Set.member "align-x" has then
-                            (Tuple found has )
+                        if Set.member "align-x" curr.has then
+                            curr
 
                         else
-                            (Tuple (x : found) (Set.insert "align-x" has ))
+                            curr{found = x:curr.found, has=Set.insert "align-x" curr.has}
 
                     AlignY _ ->
-                        if Set.member "align-y" has then
-                            (Tuple found has )
+                        if Set.member "align-y" curr.has then
+                            curr
 
                         else
-                            (Tuple (x : found) (Set.insert "align-y" has ))
+                            curr {found = x:curr.found, has = Set.insert "align-y" curr.has}
 
                     TransformComponent _ _ ->
-                        if Set.member "transform" has then
-                            (Tuple found has )
+                        if Set.member "transform" curr.has then
+                            curr
 
                         else
-                            (Tuple (x : found) (Set.insert "transform" has ))
+                            curr {found = x:curr.found, has = Set.insert "transform" curr.has}
             )
-            (Tuple ([]) (Set.empty ))
+            {found: [], has: Set.empty, htmlClasses: []}
             attrs
+    in
+      (HtmlClassName modifiedAttrs.htmlClasses) : modifiedAttrs.found
 
 
 isContent :: Length -> Boolean
@@ -3511,6 +3522,9 @@ instance functorAttr :: Functor (Attribute aligned) where
 
         Class x y ->
             Class x y
+
+        HtmlClassName cs ->
+            HtmlClassName cs
 
         StyleClass flag style ->
             StyleClass flag style
