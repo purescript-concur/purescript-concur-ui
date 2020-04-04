@@ -12,7 +12,7 @@ module Element
     , moveUp, moveDown, moveRight, moveLeft, rotate, scale
     , clip, clipX, clipY
     , scrollbars, scrollbarX, scrollbarY
-    , layout, layoutWith, Option, noStaticStyleSheet, forceHover, noHover, focusStyle
+    , layout, layoutInner, layoutWith, Option, noStaticStyleSheet, forceHover, noHover, focusStyle
     , link, newTabLink, download, downloadAs
     , image
     , Color, rgba, rgb, rgb255, rgba255, fromRgb, fromRgb255, toRgb
@@ -270,6 +270,9 @@ layout :: forall msg. Array (Attribute msg) -> Element msg -> Widget HTML msg
 layout =
     layoutWith { options: [] }
 
+layoutInner :: forall msg. Array (Attribute msg) -> Element msg -> Widget HTML msg
+layoutInner =
+    layoutWith { options: [Internal.RenderModeOption Internal.NoStaticStyleSheet] }
 
 {-| -}
 layoutWith :: forall msg. { options :: Array Option } -> Array (Attribute msg) -> Element msg -> Widget HTML msg

@@ -1947,8 +1947,10 @@ staticRoot opts =
         NoStaticStyleSheet ->
             D.text ""
 
+        {-
         WithVirtualCss ->
-            mkNode "elm-ui-static-rules" [ P.unsafeMkProp "rules" (JString IStyle.rules) ] []
+            mkNode "elm-ui-static-rules" [ P.unsafeMkProp "rules" IStyle.rules ] []
+        -}
 
 
 addWhen :: forall a. Boolean -> a -> Array a -> Array a
@@ -2249,7 +2251,8 @@ renderRoot optionArray attributes child =
 data RenderMode
     = Layout
     | NoStaticStyleSheet
-    | WithVirtualCss
+    -- AJ: TODO: What does this option do? It doesn't work
+    -- | WithVirtualCss
 
 
 type OptionRecord =
@@ -2469,12 +2472,14 @@ toStyleSheet options styleSheet =
                     [ D.text (toStyleSheetString options styleSheet) ]
                 ]
 
+        {-
         WithVirtualCss ->
             mkNode "elm-ui-rules"
                 [ P.unsafeMkProp "rules"
                     (encodeStyles options styleSheet)
                 ]
                 []
+        -}
 
 
 renderTopLevelValues :: Array (Tuple String (Array Font)) -> String
@@ -2716,16 +2721,7 @@ type Named a =
   , val :: a
   }
 
--- AJ: TODO: TODO: TODO: IMPLEMENT ACTUAL JSON!
-data Json
-  = JObject (Array (Named Json))
-  | JList (Array Json)
-  | JString String
-  | JInt Int
-  | JNumber Number
-  | JBool Boolean
--- AJ: END
-
+{-
 encodeStyles :: OptionRecord -> Array Style -> Json
 encodeStyles options stylesheet =
     stylesheet
@@ -2735,9 +2731,11 @@ encodeStyles options stylesheet =
                     styled =
                         renderStyleRule options style Nothing
                 in
-                  {name: getStyleName style, val: JList (map JString styled ) }
+                  {name: getStyleName style, val: styled }
             )
-        # JObject
+        -- # jObject
+        # json
+-}
 
 
 toStyleSheetString :: OptionRecord -> Array Style -> String
