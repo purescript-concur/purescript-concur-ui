@@ -27,6 +27,7 @@ module Internal.Model
     , PseudoClass(..)
     , RenderMode(..)
     , Shadow
+    , SizedShadow
     , Spacing(..)
     , Style(..)
     , TransformComponent(..)
@@ -2276,7 +2277,7 @@ data Option
 
 type FocusStyle =
     { borderColor :: Maybe Color
-    , shadow :: Maybe Shadow
+    , shadow :: Maybe SizedShadow
     , backgroundColor :: Maybe Color
     }
 
@@ -2288,11 +2289,17 @@ type XYVal a = {xval :: a, yval:: a}
 mapXYVal :: forall a b. (a -> b) -> XYVal a -> XYVal b
 mapXYVal fn {xval, yval} = {xval: fn xval, yval: fn yval}
 
-type Shadow =
+type SizedShadow =
     { color :: Color
     , offset :: XYVal Number
     , blur :: Number
     , size :: Number
+    }
+
+type Shadow =
+    { color :: Color
+    , offset :: XYVal Number
+    , blur :: Number
     }
 
 rootStyle :: forall msg aligned. Array (Attribute aligned msg)
@@ -2374,7 +2381,7 @@ renderFocusStyle focus =
     ]
 
 
-focusDefaultStyle :: { backgroundColor :: Maybe Color, borderColor :: Maybe Color, shadow :: Maybe Shadow }
+focusDefaultStyle :: { backgroundColor :: Maybe Color, borderColor :: Maybe Color, shadow :: Maybe SizedShadow }
 focusDefaultStyle =
     { backgroundColor: Nothing
     , borderColor: Nothing
@@ -3281,7 +3288,7 @@ textShadowClass shadow =
         , formatColorClass shadow.color
         ]
 
-formatBoxShadow :: Boolean -> Shadow -> String
+formatBoxShadow :: Boolean -> SizedShadow -> String
 formatBoxShadow inset shadow =
     String.joinWith " " $
         Array.catMaybes
@@ -3297,7 +3304,7 @@ formatBoxShadow inset shadow =
             ]
 
 
-boxShadowClass :: Boolean -> Shadow -> String
+boxShadowClass :: Boolean -> SizedShadow -> String
 boxShadowClass inset shadow =
     String.joinWith "" $
         [ if inset then

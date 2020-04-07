@@ -40,7 +40,7 @@ import Data.Semigroup ((<>))
 import Data.Show (show)
 import Element (Attr, Attribute, Color)
 import Internal.Flag as Flag
-import Internal.Model (Shadow)
+import Internal.Model (SizedShadow)
 import Internal.Model as Internal
 import Internal.Style (classes) as IStyle
 
@@ -220,7 +220,7 @@ innerGlow clr size =
 
 
 {-| -}
-shadow :: forall decorative msg. Shadow -> Attr decorative msg
+shadow :: forall decorative msg. SizedShadow -> Attr decorative msg
 shadow almostShade =
     let
         shade =
@@ -238,7 +238,7 @@ shadow almostShade =
 
 
 {-| -}
-innerShadow :: forall decorative msg. Shadow -> Attr decorative msg
+innerShadow :: forall decorative msg. SizedShadow -> Attr decorative msg
 innerShadow almostShade =
     let
         shade =
