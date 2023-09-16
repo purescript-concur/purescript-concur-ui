@@ -16,13 +16,15 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "parcel-bundler": "^1.12.4",
-    "purescript": "^0.13.6",
-    "rimraf": "^3.0.0",
-    "spago": "^0.14.0"
+    "esbuild": "^0.17.5",
+    "parcel": "^2.8.3",
+    "process": "^0.11.10",
+    "purescript": "^0.15.10",
+    "rimraf": "^3.0.2",
+    "spago": "^0.20.9"
   },
   "dependencies": {
-    "react": "^16.13.0",
-    "react-dom": "^16.13.0"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }
